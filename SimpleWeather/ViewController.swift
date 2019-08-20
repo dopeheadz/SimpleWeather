@@ -14,6 +14,10 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        WeatherDataSource.shared.fetchSummary(lat: 37.498206, lon: 127.02761) { [weak self] in
+            self?.listTableView.reloadData()
+        }
     }
 }
 
@@ -39,7 +43,13 @@ extension ViewController: UITableViewDataSource {
 
         switch indexPath.section {
         case 0:
-            let cell = tableView.dequeueReusableCell(withIdentifier: "summaryCell", for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: "summaryCell", for: indexPath) as! SummaryTableViewCell
+            if let data = WeatherDataSource.shared.summary?.weather.minutely.first {
+                cell.weatherImageView.image = UIImage(named: data.sky.code)
+                cell.statusLabel.text = data.sky.name
+                cell.minMaxLabel.text = "최대 \(data.temperature.tmax)º 최소\(data.temperature.tmin)º"
+                cell.currentTemperatureLabel.text = "\(data.temperature.tc)"
+            }
             return cell
         case 1:
             let cell = tableView.dequeueReusableCell(withIdentifier: "forecastCell", for: indexPath)
@@ -47,7 +57,7 @@ extension ViewController: UITableViewDataSource {
         default:
             fatalError()
             
-        }        
+        }
     }
 
 }
